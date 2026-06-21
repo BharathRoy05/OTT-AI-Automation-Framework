@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Streamly Demo OTT</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #111;
+      color: #fff;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      background: #050505;
+      border-bottom: 1px solid #242424;
+    }
+    a { color: #fff; margin-right: 18px; text-decoration: none; }
+    main { padding: 32px; }
+    .brand { color: #e50914; font-size: 26px; font-weight: 700; }
+    .panel {
+      max-width: 460px;
+      padding: 28px;
+      background: #1b1b1b;
+      border: 1px solid #333;
+      border-radius: 8px;
+    }
+    input, button, select {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 4px;
+      border: 1px solid #444;
+      font-size: 15px;
+    }
+    button {
+      background: #e50914;
+      color: #fff;
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .error { color: #ffb3b3; min-height: 24px; }
+    .avatar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #e50914;
+      font-weight: 700;
+    }
+    .hero {
+      min-height: 240px;
+      padding: 32px;
+      border-radius: 8px;
+      background: linear-gradient(120deg, #222, #4b1115);
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin: 18px 0 34px;
+    }
+    .card, .plan {
+      min-height: 110px;
+      padding: 18px;
+      background: #222;
+      border: 1px solid #393939;
+      border-radius: 8px;
+    }
+    .suggestion {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      background: #1d1d1d;
+    }
+    .player {
+      display: grid;
+      place-items: center;
+      height: 330px;
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 8px;
+      margin-bottom: 18px;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      max-width: 820px;
+    }
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      max-width: 820px;
+    }
+    .selected { border-color: #e50914; }
+    .toast { margin-top: 18px; color: #8ff0a4; min-height: 24px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Streamly</div>
+    <nav>
+      <a href="/home">Home</a>
+      <a href="/search">Search</a>
+      <a href="/watch/stranger-things">Player</a>
+      <a href="/account/subscription">Plans</a>
+      <a href="/login">Login</a>
+    </nav>
+  </header>
+  <main id="app"></main>
+
+  <script>
+    const app = document.querySelector("#app");
+    const movies = ["Stranger Things", "The Crown", "Wednesday", "Dark", "Money Heist"];
+
+    function renderLogin() {
+      app.innerHTML = `
+        <section class="panel">
+          <h1>Login</h1>
+          <input data-testid="login-email" placeholder="Email">
+          <input data-testid="login-password" placeholder="Password" type="password">
+          <button data-testid="login-submit">Sign In</button>
+          <div data-testid="login-error" class="error"></div>
+          <div id="profile-slot"></div>
+        </section>
+      `;
+      document.querySelector("[data-testid='login-submit']").addEventListener("click", () => {
+        const email = document.querySelector("[data-testid='login-email']").value;
+        const password = document.querySelector("[data-testid='login-password']").value;
+        const error = document.querySelector("[data-testid='login-error']");
+        if (!email || !password) {
+          error.textContent = "Email and password are required";
+          return;
+        }
+        if (email !== "qa.viewer@example.com" || password !== "SecurePass@123") {
+          error.textContent = "Invalid email or password";
+          return;
+        }
+        error.textContent = "";
+        document.querySelector("#profile-slot").innerHTML = `<span data-testid="profile-avatar" class="avatar">QA</span>`;
+      });
+    }
+
+    function renderHome() {
+      app.innerHTML = `
+        <section data-testid="hero-banner" class="hero">
+          <h1>Stranger Things</h1>
+          <p>Featured banner slide for the demo OTT home page.</p>
+          <button data-testid="banner-next">Next Banner</button>
+        </section>
+        <h2>Trending</h2>
+        <section data-testid="trending-row" class="row">
+          ${movies.slice(0, 4).map(title => `<article data-testid="trending-card" class="card">${title}</article>`).join("")}
+        </section>
+        <h2>Categories</h2>
+        <section class="row">
+          ${["Sci-Fi", "Drama", "Comedy"].map(title => `<article data-testid="category-row" class="card">${title}</article>`).join("")}
+        </section>
+      `;
+      document.querySelector("[data-testid='banner-next']").addEventListener("click", () => {
+        document.querySelector("[data-testid='hero-banner'] h1").textContent = "Wednesday";
+      });
+    }
+
+    function renderSearch() {
+      app.innerHTML = `
+        <section class="panel">
+          <h1>Search</h1>
+          <input data-testid="search-input" placeholder="Search movies">
+          <div id="suggestions"></div>
+          <div id="results"></div>
+          <div data-testid="no-results"></div>
+        </section>
+      `;
+      document.querySelector("[data-testid='search-input']").addEventListener("input", event => {
+        const query = event.target.value.toLowerCase();
+        const matches = movies.filter(title => title.toLowerCase().includes(query));
+        document.querySelector("#suggestions").innerHTML = matches.map(title => `<div data-testid="autocomplete-item" class="suggestion">${title}</div>`).join("");
+        document.querySelector("#results").innerHTML = matches.map(title => `<div data-testid="search-result-card" class="card">${title}</div>`).join("");
+        document.querySelector("[data-testid='no-results']").textContent = query && matches.length === 0 ? "No results found" : "";
+      });
+    }
+
+    function renderPlayer() {
+      app.innerHTML = `
+        <section data-testid="video-player" class="player">
+          <h1>Now Playing: Stranger Things</h1>
+        </section>
+        <section class="controls">
+          <button data-testid="play-pause">Play/Pause</button>
+          <button data-testid="seek-forward">Seek Forward</button>
+          <button data-testid="seek-backward">Seek Backward</button>
+          <button data-testid="subtitle-toggle">Subtitles</button>
+          <button data-testid="quality-menu">Quality</button>
+          <button data-testid="quality-1080p">1080p</button>
+        </section>
+      `;
+    }
+
+    function renderSubscription() {
+      app.innerHTML = `
+        <h1>Subscription Plans</h1>
+        <section class="plans">
+          <button data-testid="plan-basic" class="plan">Basic</button>
+          <button data-testid="plan-standard" class="plan">Standard</button>
+          <button data-testid="plan-premium" class="plan">Premium</button>
+        </section>
+        <button data-testid="confirm-plan" style="max-width: 260px;">Confirm Plan</button>
+        <div data-testid="subscription-success" class="toast"></div>
+      `;
+      let selected = "";
+      ["basic", "standard", "premium"].forEach(plan => {
+        document.querySelector(`[data-testid='plan-${plan}']`).addEventListener("click", event => {
+          selected = plan;
+          document.querySelectorAll(".plan").forEach(item => item.classList.remove("selected"));
+          event.target.classList.add("selected");
+        });
+      });
+      document.querySelector("[data-testid='confirm-plan']").addEventListener("click", () => {
+        document.querySelector("[data-testid='subscription-success']").textContent = `${selected || "Plan"} updated successfully`;
+      });
+    }
+
+    const path = window.location.pathname;
+    if (path.startsWith("/home")) renderHome();
+    else if (path.startsWith("/search")) renderSearch();
+    else if (path.startsWith("/watch")) renderPlayer();
+    else if (path.startsWith("/account/subscription")) renderSubscription();
+    else renderLogin();
+  </script>
+</body>
+</html>

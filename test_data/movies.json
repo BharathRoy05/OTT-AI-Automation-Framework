@@ -1,0 +1,13 @@
+{
+  "search_terms": [
+    "Stranger Things",
+    "The Crown",
+    "Wednesday"
+  ],
+  "expected_movie": {
+    "title": "Stranger Things",
+    "category": "Sci-Fi",
+    "language": "English"
+  },
+  "no_result_query": "zzzz-no-such-title-9999"
+}

@@ -1,0 +1,15 @@
+{
+  "valid_user": {
+    "email": "qa.viewer@example.com",
+    "password": "SecurePass@123",
+    "display_name": "QA Viewer"
+  },
+  "invalid_user": {
+    "email": "wrong.viewer@example.com",
+    "password": "bad-password"
+  },
+  "empty_user": {
+    "email": "",
+    "password": ""
+  }
+}
